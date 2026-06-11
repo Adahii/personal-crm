@@ -361,3 +361,34 @@ export async function revokeInvite(inviteId) {
   await supabase.from("org_invites").delete().eq("id", inviteId);
   revalidatePath("/dashboard/team");
 }
+
+// ---------------------------------------------------------------------------
+//  v5: team-shared conversation logs on captured people
+// ---------------------------------------------------------------------------
+
+export async function addLeadInteraction(formData) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not signed in.");
+
+  const leadId = formData.get("lead_id");
+  const { error } = await supabase.from("lead_interactions").insert({
+    org_id: formData.get("org_id"),
+    lead_id: leadId,
+    author_user_id: user.id,
+    occurred_on:
+      formData.get("occurred_on") || new Date().toISOString().slice(0, 10),
+    topics: formData.get("topics")?.trim() || null,
+    next_steps: formData.get("next_steps")?.trim() || null,
+  });
+  if (error) throw new Error(error.message);
+  revalidatePath(`/dashboard/team/lead/${leadId}`);
+}
+
+export async function deleteLeadInteraction(id, leadId) {
+  const supabase = await createClient();
+  await supabase.from("lead_interactions").delete().eq("id", id);
+  revalidatePath(`/dashboard/team/lead/${leadId}`);
+}

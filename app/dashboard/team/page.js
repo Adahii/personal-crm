@@ -294,7 +294,12 @@ export default async function TeamPage({ searchParams }) {
             leads.map((l) => (
               <div key={l.id} className="timeline-item">
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
-                  <strong>{l.name}</strong>
+                  <Link
+                    href={`/dashboard/team/lead/${l.id}`}
+                    style={{ fontWeight: 700, color: "var(--crimson)" }}
+                  >
+                    {l.name}
+                  </Link>
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <LeadStatus leadId={l.id} status={l.status} />
                     {isAdmin && (

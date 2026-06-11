@@ -267,3 +267,16 @@ event attribution on captures, and team-admin permissions.
   and who captured each contact.
 - **Team admin**: change roles, remove members (their captures stay), revoke
   pending invites.
+
+---
+
+# Version 5 — shared team logs
+
+Run `supabase-migration-v5.sql` once in the SQL Editor. It (a) fixes a
+constraint so deleting a user who created a team no longer fails — the team
+survives with its other members — and (b) adds team conversation logs.
+
+On the Team tab, every captured contact's name now opens a detail page where
+any member can log a conversation (date, what was discussed, next steps).
+Logs are visible to the whole team, attributed to their author; authors can
+delete their own entries, admins can delete any.
