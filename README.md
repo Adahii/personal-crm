@@ -228,3 +228,23 @@ automatically with every deploy — nothing to reinstall.
 
 Brand assets live in `public/icons/` (app icons, favicon). Transparent logo
 marks for use elsewhere were delivered alongside the project.
+
+---
+
+# Version 3 — Teams: work cards & lead capture
+
+Run `supabase-migration-v3.sql` once in the Supabase SQL Editor (after v1/v2).
+It adds organizations, members, invites, leads, and the capture functions.
+Existing data is untouched.
+
+What it adds:
+- **Team tab**: create a company, invite teammates by email (they sign in with
+  that email and tap Join), and see every captured contact in one list.
+- **Work card**: each member gets a second card (title, work email/phone, a
+  one-line pitch) with its own QR, shown under My card. Personal contacts stay
+  personal; only work-card connections flow to the company.
+- **Quick capture**: people *without* an account who scan a work card can share
+  name/email/company/note in one form — it lands in the team's captured list.
+  The page tells them their info will be visible to the company.
+- Signed-in people who connect with a work card get the rep in their contacts,
+  appear in the rep's contacts, and appear in the company list (disclosed).

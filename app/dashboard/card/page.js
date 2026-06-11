@@ -12,6 +12,12 @@ export default async function CardPage() {
   } = await supabase.auth.getUser();
   const profile = await getOrCreateProfile(supabase, user);
 
+  const { data: membership } = await supabase
+    .from("org_members")
+    .select("work_share_id, card_active, title, organizations(name)")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
   // Summarise what's currently shared, so there are no surprises.
   const shared = [
     profile.share_avatar && "photo",
@@ -47,6 +53,27 @@ export default async function CardPage() {
           </p>
         </div>
       </div>
+
+      {membership && membership.card_active && (
+        <section className="section" style={{ marginTop: 28, maxWidth: 460 }}>
+          <div className="section-title">
+            <span className="label">Work card · {membership.organizations?.name}</span>
+          </div>
+          <div className="card">
+            <QrCard
+              shareId={membership.work_share_id}
+              name={`${profile.full_name || ""} · ${membership.title || membership.organizations?.name}`}
+            />
+            <div style={{ padding: "0 28px 24px", textAlign: "center" }}>
+              <p className="muted" style={{ fontSize: 13 }}>
+                Share this one on the job. Connections also land in{" "}
+                {membership.organizations?.name}'s captured list — people are
+                told before they share.
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
 
       <section className="section" style={{ marginTop: 28, maxWidth: 460 }}>
         <div className="section-title">

@@ -7,6 +7,7 @@ const links = [
   { href: "/dashboard", label: "Home", icon: HomeIcon },
   { href: "/dashboard/contacts", label: "People", icon: PeopleIcon },
   { href: "/dashboard/card", label: "My card", icon: QrIcon },
+  { href: "/dashboard/team", label: "Team", icon: TeamIcon },
   { href: "/dashboard/profile", label: "Profile", icon: UserIcon },
 ];
 
@@ -92,6 +93,15 @@ function UserIcon() {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="8" r="4" />
       <path d="M4.5 21c1-3.8 4-6 7.5-6s6.5 2.2 7.5 6" />
+    </svg>
+  );
+}
+
+function TeamIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="7" width="18" height="13" rx="2.5" />
+      <path d="M8 7V5.5A2.5 2.5 0 0 1 10.5 3h3A2.5 2.5 0 0 1 16 5.5V7M3 12h18" />
     </svg>
   );
 }

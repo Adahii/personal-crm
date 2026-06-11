@@ -36,6 +36,7 @@ export async function updateSession(request) {
     pathname === "/manifest.webmanifest" ||
     pathname.startsWith("/login") ||
     pathname.startsWith("/auth") ||
+    pathname.startsWith("/connect") ||
     pathname.startsWith("/icons");
 
   // Not signed in and trying to reach a private page -> login, remembering

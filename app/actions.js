@@ -214,3 +214,81 @@ export async function connectWith(shareId) {
   revalidatePath("/dashboard");
   redirect(`/dashboard/contacts/${data}`);
 }
+
+// ---------------------------------------------------------------------------
+//  v3: organizations, work cards, leads
+// ---------------------------------------------------------------------------
+
+export async function createOrganization(formData) {
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("create_organization", {
+    p_name: formData.get("name"),
+    p_domain: formData.get("domain") || null,
+  });
+  if (error) throw new Error(error.message);
+  revalidatePath("/dashboard/team");
+}
+
+export async function inviteMember(orgId, orgName, formData) {
+  const supabase = await createClient();
+  const email = formData.get("email")?.trim().toLowerCase();
+  if (!email) return;
+  const { error } = await supabase.from("org_invites").insert({
+    org_id: orgId,
+    org_name: orgName,
+    email,
+    role: formData.get("role") === "admin" ? "admin" : "rep",
+  });
+  if (error) throw new Error(error.message);
+  revalidatePath("/dashboard/team");
+}
+
+export async function acceptInvite(inviteId) {
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("accept_invite", { p_invite: inviteId });
+  if (error) throw new Error(error.message);
+  revalidatePath("/dashboard/team");
+  revalidatePath("/dashboard/card");
+}
+
+export async function updateWorkCard(memberId, formData) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("org_members")
+    .update({
+      title: formData.get("title")?.trim() || null,
+      work_email: formData.get("work_email")?.trim() || null,
+      work_phone: formData.get("work_phone")?.trim() || null,
+      headline: formData.get("headline")?.trim() || null,
+      card_active: formData.get("card_active") === "on",
+    })
+    .eq("id", memberId);
+  if (error) throw new Error(error.message);
+  revalidatePath("/dashboard/team");
+  revalidatePath("/dashboard/card");
+}
+
+// Signed-in visitor connects with a rep's work card.
+export async function connectWithWork(shareId) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("connect_with_work", {
+    p_share_id: shareId,
+  });
+  if (error) throw new Error(error.message);
+  revalidatePath("/dashboard/contacts");
+  redirect(`/dashboard/contacts/${data}`);
+}
+
+// No-account visitor shares their info with the rep's company.
+export async function captureLead(shareId, formData) {
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("capture_lead", {
+    p_share_id: shareId,
+    p_name: formData.get("name"),
+    p_email: formData.get("email") || null,
+    p_company: formData.get("company") || null,
+    p_note: formData.get("note") || null,
+  });
+  if (error) return { ok: false, message: error.message };
+  return { ok: true };
+}
