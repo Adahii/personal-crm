@@ -1,4 +1,4 @@
-# Soyo — meet, scan, remember
+# Soyo88 — meet, scan, remember
 
 A private place to remember everyone you meet: who they are, what you talked
 about, and when it's time to reconnect. Built with Next.js + Supabase, hosted
@@ -212,3 +212,19 @@ someone's card is through their share link, and it only ever returns the fields
 they enabled. The reciprocal "add to their contacts" is done by a single
 guarded database function; it's the one and only thing allowed to write into
 another person's list, and it enforces the sharing rules itself.
+
+---
+
+# Install it like an app (PWA)
+
+Soyo88 is installable straight from the browser — no app store:
+
+- **iPhone**: open the site in Safari → Share button → **Add to Home Screen**.
+- **Android**: open it in Chrome → menu (⋮) → **Add to Home screen** (or tap the
+  install prompt if it appears).
+
+It launches full-screen with the Soyo88 icon, like a native app. Updates ship
+automatically with every deploy — nothing to reinstall.
+
+Brand assets live in `public/icons/` (app icons, favicon). Transparent logo
+marks for use elsewhere were delivered alongside the project.

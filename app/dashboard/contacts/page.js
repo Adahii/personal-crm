@@ -112,7 +112,7 @@ export default async function ContactsPage({ searchParams }) {
                   <div>
                     <div className="nm">{c.name}</div>
                     <div className="meta">
-                      {[c.role, c.company, c.industry]
+                      {[c.role, c.company]
                         .filter(Boolean)
                         .join(" · ") || "No details yet"}
                     </div>

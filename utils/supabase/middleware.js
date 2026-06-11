@@ -33,8 +33,10 @@ export async function updateSession(request) {
   const { pathname } = request.nextUrl;
   const isPublic =
     pathname === "/" ||
+    pathname === "/manifest.webmanifest" ||
     pathname.startsWith("/login") ||
-    pathname.startsWith("/auth");
+    pathname.startsWith("/auth") ||
+    pathname.startsWith("/icons");
 
   // Not signed in and trying to reach a private page -> login, remembering
   // where they were headed (so a scanned connect link survives the detour).
