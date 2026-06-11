@@ -248,3 +248,22 @@ What it adds:
   The page tells them their info will be visible to the company.
 - Signed-in people who connect with a work card get the rep in their contacts,
   appear in the rep's contacts, and appear in the company list (disclosed).
+
+---
+
+# Version 4 — lead pipeline, events & exports
+
+Run `supabase-migration-v4.sql` once (after v3). Adds events, lead statuses,
+event attribution on captures, and team-admin permissions.
+
+- **Stats** at the top of Team: total captured, this week, qualified.
+- **Events**: admins add conferences; each rep picks the event they're
+  currently working on their work card — every capture is tagged with it
+  automatically.
+- **Pipeline**: every captured contact has a status (New → Contacted →
+  Qualified → Archived) you change inline.
+- **Filters**: slice the captured list by event, rep, or status.
+- **Export CSV**: one click, opens in Excel/Sheets; includes status, event,
+  and who captured each contact.
+- **Team admin**: change roles, remove members (their captures stay), revoke
+  pending invites.

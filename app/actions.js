@@ -261,6 +261,7 @@ export async function updateWorkCard(memberId, formData) {
       work_phone: formData.get("work_phone")?.trim() || null,
       headline: formData.get("headline")?.trim() || null,
       card_active: formData.get("card_active") === "on",
+      current_event_id: formData.get("current_event_id") || null,
     })
     .eq("id", memberId);
   if (error) throw new Error(error.message);
@@ -291,4 +292,72 @@ export async function captureLead(shareId, formData) {
   });
   if (error) return { ok: false, message: error.message };
   return { ok: true };
+}
+
+// ---------------------------------------------------------------------------
+//  v4: events, lead pipeline, team admin
+// ---------------------------------------------------------------------------
+
+export async function createEvent(orgId, formData) {
+  const supabase = await createClient();
+  const name = formData.get("name")?.trim();
+  if (!name) return;
+  const { error } = await supabase.from("org_events").insert({
+    org_id: orgId,
+    name,
+    starts_on: formData.get("starts_on") || null,
+  });
+  if (error) throw new Error(error.message);
+  revalidatePath("/dashboard/team");
+}
+
+export async function deleteEvent(eventId) {
+  const supabase = await createClient();
+  await supabase.from("org_events").delete().eq("id", eventId);
+  revalidatePath("/dashboard/team");
+}
+
+export async function updateLeadStatus(leadId, status) {
+  const supabase = await createClient();
+  const allowed = ["new", "contacted", "qualified", "archived"];
+  if (!allowed.includes(status)) return;
+  const { error } = await supabase
+    .from("leads")
+    .update({ status })
+    .eq("id", leadId);
+  if (error) throw new Error(error.message);
+  revalidatePath("/dashboard/team");
+}
+
+export async function deleteLead(leadId) {
+  const supabase = await createClient();
+  await supabase.from("leads").delete().eq("id", leadId);
+  revalidatePath("/dashboard/team");
+}
+
+export async function updateMemberRole(memberId, formData) {
+  const supabase = await createClient();
+  const role = formData.get("role") === "admin" ? "admin" : "rep";
+  const { error } = await supabase
+    .from("org_members")
+    .update({ role })
+    .eq("id", memberId);
+  if (error) throw new Error(error.message);
+  revalidatePath("/dashboard/team");
+}
+
+export async function removeMember(memberId) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("org_members")
+    .delete()
+    .eq("id", memberId);
+  if (error) throw new Error(error.message);
+  revalidatePath("/dashboard/team");
+}
+
+export async function revokeInvite(inviteId) {
+  const supabase = await createClient();
+  await supabase.from("org_invites").delete().eq("id", inviteId);
+  revalidatePath("/dashboard/team");
 }
