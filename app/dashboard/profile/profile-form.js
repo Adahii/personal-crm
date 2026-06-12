@@ -94,6 +94,10 @@ export default function ProfileForm({ action, profile }) {
       <div className="card" style={{ padding: 24, marginBottom: 20 }}>
         <span className="label">Reach &amp; about</span>
         <div style={{ height: 16 }} />
+        <label className="share-toggle" style={{ marginBottom: 14 }}>
+          <input type="checkbox" name="share_files" defaultChecked={profile.share_files} />
+          share my files (resume etc.)
+        </label>
         <div className="field-row">
           <ShareField label="Work email" name="work_email" shareName="share_work_email" defaultValue={profile.work_email} defaultShare={profile.share_work_email} />
           <ShareField label="Phone" name="phone" shareName="share_phone" defaultValue={profile.phone} defaultShare={profile.share_phone} />

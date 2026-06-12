@@ -6,10 +6,18 @@ import Avatar from "@/components/avatar";
 export default async function DashboardPage() {
   const supabase = await createClient();
 
-  const { data: contacts = [] } = await supabase
-    .from("contacts")
-    .select("id, name, company, role, last_contacted_at, avatar_url")
-    .order("last_contacted_at", { ascending: true, nullsFirst: true });
+  const [{ data: contactsData }, { count: interactionCountRaw }] =
+    await Promise.all([
+      supabase
+        .from("contacts")
+        .select("id, name, company, role, last_contacted_at, avatar_url")
+        .order("last_contacted_at", { ascending: true, nullsFirst: true }),
+      supabase
+        .from("interactions")
+        .select("id", { count: "exact", head: true }),
+    ]);
+  const contacts = contactsData ?? [];
+  const interactionCount = interactionCountRaw ?? 0;
 
   const total = contacts.length;
 
@@ -18,10 +26,6 @@ export default async function DashboardPage() {
     const f = freshness(c.last_contacted_at);
     return f.level === "cold" || f.level === "none";
   });
-
-  const { count: interactionCount = 0 } = await supabase
-    .from("interactions")
-    .select("id", { count: "exact", head: true });
 
   return (
     <>

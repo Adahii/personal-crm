@@ -13,6 +13,7 @@ import {
   revokeInvite,
 } from "@/app/actions";
 import { formatDate } from "@/utils/format";
+import { deleteOrganization } from "@/app/actions";
 import SubmitButton from "@/components/submit-button";
 import ConfirmSubmit from "@/components/confirm-submit";
 import LeadStatus from "./lead-status";
@@ -404,6 +405,27 @@ export default async function TeamPage({ searchParams }) {
                 ))}
               </div>
             )}
+          </div>
+        </section>
+      )}
+
+      {isAdmin && (
+        <section className="section">
+          <div className="section-title">
+            <span className="label" style={{ color: "var(--red)" }}>Danger zone</span>
+          </div>
+          <div className="card" style={{ padding: 18 }}>
+            <p className="hint" style={{ marginTop: 0 }}>
+              Deleting {org.name} permanently removes its members, invites,
+              captured contacts, events, and team logs. Members' personal
+              contacts are not affected.
+            </p>
+            <ConfirmSubmit
+              action={deleteOrganization.bind(null, org.id)}
+              message={`Delete ${org.name} and ALL of its captured contacts and team logs? This cannot be undone.`}
+            >
+              Delete team
+            </ConfirmSubmit>
           </div>
         </section>
       )}

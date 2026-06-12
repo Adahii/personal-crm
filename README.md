@@ -280,3 +280,24 @@ On the Team tab, every captured contact's name now opens a detail page where
 any member can log a conversation (date, what was discussed, next steps).
 Logs are visible to the whole team, attributed to their author; authors can
 delete their own entries, admins can delete any.
+
+---
+
+# Version 6 — quality of life
+
+Run `supabase-migration-v6.sql` once in the SQL Editor. Then deploy as usual.
+
+- **Shared files on your card**: upload your resume or anything else on the
+  Profile page. Anyone who scans your personal card can open them, and
+  connected contacts see your latest files on your contact page. One toggle
+  ("share my files") turns it off everywhere.
+- **Private notes on contacts**: a notes box on every contact that is yours
+  alone — never shared, never overwritten by sync.
+- **Live profile sync**: when you save your profile, every connected person's
+  copy of you updates automatically (respecting your share toggles).
+- **Delete a team**: admins get a Danger zone on the Team tab with a hard
+  confirmation. Members' personal contacts survive; the team's captured
+  contacts and logs do not.
+- **Snappier app**: removed a database roundtrip from every page navigation,
+  parallelized page queries, and added instant loading skeletons.
+- **Mobile zoom lock**: no more accidental pinch/double-tap zooming.

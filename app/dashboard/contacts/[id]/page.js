@@ -10,6 +10,7 @@ import {
 } from "@/app/actions";
 import InteractionForm from "./interaction-form";
 import AttachmentUploader from "./attachment-uploader";
+import PrivateNotes from "./private-notes";
 import ConfirmSubmit from "@/components/confirm-submit";
 
 export default async function ContactDetailPage({ params }) {
@@ -23,17 +24,26 @@ export default async function ContactDetailPage({ params }) {
     .single();
   if (!contact) notFound();
 
-  const { data: interactions = [] } = await supabase
-    .from("interactions")
-    .select("*")
-    .eq("contact_id", id)
-    .order("occurred_on", { ascending: false });
-
-  const { data: attachments = [] } = await supabase
-    .from("attachments")
-    .select("*")
-    .eq("contact_id", id)
-    .order("created_at", { ascending: false });
+  const [{ data: interactionsData }, { data: attachmentsData }, sharedFilesRes] =
+    await Promise.all([
+      supabase
+        .from("interactions")
+        .select("*")
+        .eq("contact_id", id)
+        .order("occurred_on", { ascending: false }),
+      supabase
+        .from("attachments")
+        .select("*")
+        .eq("contact_id", id)
+        .order("created_at", { ascending: false }),
+      contact.linked_user_id
+        ? supabase.rpc("get_contact_shared_files", { p_contact: id })
+        : Promise.resolve({ data: [] }),
+    ]);
+  const interactions = interactionsData ?? [];
+  const attachments = attachmentsData ?? [];
+  const sharedFiles = sharedFilesRes?.data ?? [];
+  const publicBase = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/profile-files/`;
 
   // Short-lived signed URLs so private files stay private.
   const signed = {};
@@ -124,6 +134,8 @@ export default async function ContactDetailPage({ params }) {
             </div>
           )}
 
+          <PrivateNotes contactId={id} value={contact.private_notes} />
+
           <section className="section">
             <div className="section-title">
               <span className="label">Conversation history</span>
@@ -175,6 +187,28 @@ export default async function ContactDetailPage({ params }) {
 
         {/* Right column: attachments + danger zone */}
         <div>
+          {sharedFiles.length > 0 && (
+            <section className="section">
+              <div className="section-title">
+                <span className="label">Their shared files</span>
+              </div>
+              <div className="card">
+                {sharedFiles.map((f) => (
+                  <div key={f.path} className="attach">
+                    <a
+                      href={`${publicBase}${f.path}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: "var(--crimson)", wordBreak: "break-all" }}
+                    >
+                      {f.name}
+                    </a>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
           <section className="section">
             <div className="section-title">
               <span className="label">Files</span>

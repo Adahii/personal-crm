@@ -160,6 +160,7 @@ export async function updateProfile(formData) {
     share_company: formData.get("share_company") === "on",
     share_job_overview: formData.get("share_job_overview") === "on",
     share_personal_overview: formData.get("share_personal_overview") === "on",
+    share_files: formData.get("share_files") === "on",
   };
 
   // Optional new photo.
@@ -180,6 +181,9 @@ export async function updateProfile(formData) {
     .update(updates)
     .eq("id", user.id);
   if (error) throw new Error(error.message);
+
+  // Push the changes into every linked contact's copy of you.
+  await supabase.rpc("sync_profile_to_contacts");
 
   revalidatePath("/dashboard/profile");
   revalidatePath("/dashboard/card");
@@ -391,4 +395,64 @@ export async function deleteLeadInteraction(id, leadId) {
   const supabase = await createClient();
   await supabase.from("lead_interactions").delete().eq("id", id);
   revalidatePath(`/dashboard/team/lead/${leadId}`);
+}
+
+// ---------------------------------------------------------------------------
+//  v6: quality of life
+// ---------------------------------------------------------------------------
+
+export async function uploadProfileFile(formData) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not signed in.");
+
+  const file = formData.get("file");
+  if (!file || typeof file === "string" || file.size === 0) return;
+  if (file.size > 10 * 1024 * 1024) throw new Error("Max file size is 10 MB.");
+
+  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+  const path = `${user.id}/${Date.now()}_${safeName}`;
+
+  const { error: upErr } = await supabase.storage
+    .from("profile-files")
+    .upload(path, file, { upsert: false });
+  if (upErr) throw new Error(upErr.message);
+
+  const { error } = await supabase.from("profile_files").insert({
+    user_id: user.id,
+    file_name: file.name,
+    file_path: path,
+  });
+  if (error) throw new Error(error.message);
+  revalidatePath("/dashboard/profile");
+}
+
+export async function deleteProfileFile(id, filePath) {
+  const supabase = await createClient();
+  await supabase.storage.from("profile-files").remove([filePath]);
+  await supabase.from("profile_files").delete().eq("id", id);
+  revalidatePath("/dashboard/profile");
+}
+
+export async function updateContactPrivateNotes(id, formData) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("contacts")
+    .update({ private_notes: formData.get("private_notes")?.trim() || null })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath(`/dashboard/contacts/${id}`);
+}
+
+export async function deleteOrganization(orgId) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("organizations")
+    .delete()
+    .eq("id", orgId);
+  if (error) throw new Error(error.message);
+  revalidatePath("/dashboard/team");
+  redirect("/dashboard/team");
 }

@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
-import { getOrCreateProfile } from "@/utils/profile";
 import { TopNav, TabBar } from "@/components/nav";
 import Logo from "@/components/logo";
 
@@ -11,9 +10,6 @@ export default async function DashboardLayout({ children }) {
   } = await supabase.auth.getUser();
 
   if (!user) redirect("/login");
-
-  // Guarantee a profile (and share link) exists for this user.
-  await getOrCreateProfile(supabase, user);
 
   return (
     <div className="app">

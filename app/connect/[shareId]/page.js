@@ -97,6 +97,24 @@ export default async function ConnectPage({ params }) {
         </div>
       )}
 
+      {!isWork && (card.files?.length ?? 0) > 0 && (
+        <div style={{ padding: "14px 20px", borderBottom: "1px solid var(--line)" }}>
+          <span className="label" style={{ fontSize: 11 }}>Shared files</span>
+          {card.files.map((f) => (
+            <div key={f.path} style={{ marginTop: 6 }}>
+              <a
+                href={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/profile-files/${f.path}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: "var(--crimson)", fontSize: 14, wordBreak: "break-all" }}
+              >
+                {f.name}
+              </a>
+            </div>
+          ))}
+        </div>
+      )}
+
       <div style={{ padding: 20 }}>
         {isSelf ? (
           <p className="muted" style={{ fontSize: 14, textAlign: "center", margin: 0 }}>
